@@ -16,6 +16,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        sceneView.debugOptions = [.showWorldOrigin, .showFeaturePoints]
+        
         
         // Set the view's delegate
         sceneView.delegate = self
@@ -24,10 +26,36 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.showsStatistics = true
         
         // Create a new scene
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
+        let scene = SCNScene(named: "art.scnassets/house1.scn")!
+        let node = SCNNode()
+        sceneView.scene = scene
+        
+        for x in stride(from: Float(-3), through: 3, by: 0.5) {
+            node.addChildNode(loadTree(x: x, y: 0, z: -4.5))
+            node.addChildNode(loadTree(x: x, y: 0, z: -5.0))
+            node.addChildNode(loadTree(x: x, y: 0, z: -5.5))
+            
+            guard x < Float(-0.5)  || x > Float(0.5) else {continue}
+            node.addChildNode(loadTree(x: x, y: 0, z: 0))
+            node.addChildNode(loadTree(x: x, y: 0, z: -0.5))
+            node.addChildNode(loadTree(x: x, y: 0, z: -1.0))
+            
+        }
+        
+        for z in stride(from: Float(0), through: -5.5, by: -0.5) {
+            node.addChildNode(loadTree(x: 3, y: 0, z: z))
+            node.addChildNode(loadTree(x: 2.5, y: 0, z: z))
+
+            node.addChildNode(loadTree(x: -3, y: 0, z: z))
+            node.addChildNode(loadTree(x: -2.5, y: 0, z: z))
+
+        }
+       
+      
+        sceneView.scene.rootNode.addChildNode(node)
         
         // Set the scene to the view
-        sceneView.scene = scene
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -47,29 +75,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.session.pause()
     }
 
-    // MARK: - ARSCNViewDelegate
-    
-/*
-    // Override to create and configure nodes for anchors added to the view's session.
-    func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
+    func loadTree(x: Float = 0, y: Float = 0, z: Float = 0) -> SCNNode {
         let node = SCNNode()
-     
+        node.position = SCNVector3(x, y, z)
+        node.scale = SCNVector3(0.25, 0.25, 0.25)
+        
+        let stall = SCNNode(geometry: SCNCylinder(radius: 0.05, height: 2))
+        stall.position.y = 1
+        stall.geometry?.firstMaterial?.diffuse.contents = UIColor.brown
+        node.addChildNode(stall)
+        
+        let crown = SCNNode(geometry: SCNSphere(radius: 0.5))
+        crown.position.y = 2
+        crown.geometry?.firstMaterial?.diffuse.contents = UIColor.green
+        node.addChildNode(crown)
+        
         return node
     }
-*/
-    
-    func session(_ session: ARSession, didFailWithError error: Error) {
-        // Present an error message to the user
-        
-    }
-    
-    func sessionWasInterrupted(_ session: ARSession) {
-        // Inform the user that the session has been interrupted, for example, by presenting an overlay
-        
-    }
-    
-    func sessionInterruptionEnded(_ session: ARSession) {
-        // Reset tracking and/or remove existing anchors if consistent tracking is required
-        
-    }
+
 }
